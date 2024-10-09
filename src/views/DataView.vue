@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue';
+import AddRecord from '../components/AddRecord.vue';
 
-
+const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
 const categories: { id: number, name: string, account: number, minues: boolean }[] = [
     { id: 1, name: "流动资金", account: 100000, minues: false },
@@ -77,7 +78,8 @@ function moneyDisplay(n: number): string {
         decimal.unshift(n);
         times += 1;
     });
-    return `￥${decimal.join("")}.${float}`;
+    // return `￥${decimal.join("")}.${float}`;
+    return "xxxxx";
 }
 
 onMounted(() => {
@@ -92,7 +94,8 @@ onMounted(() => {
             <el-tag :type="category.id === activeCategoryID ? 'success  ' : 'primary'" class="category"
                 v-for="category in categories" :key="category.id" @click="() => { activeCategory(category.id) }">
                 <template #default>
-                    <div>{{ category.name }}</div>
+                    <!-- <div>{{ category.name }}</div> -->
+                    <div>xxxxx</div>
                     <div style="margin-top: 10px;">{{ moneyDisplay(category.account) }}</div>
                 </template>
             </el-tag>
@@ -100,13 +103,24 @@ onMounted(() => {
     </el-scrollbar>
     <div style="margin-top: 10px;">
         <el-table :data="accountDisplay">
-            <el-table-column label="分类" prop="name" width="70px"></el-table-column>
+            <el-table-column label="分类" width="70px">
+                <template #default="scope">
+                    xxxxx
+                </template>
+            </el-table-column>
             <el-table-column label="数额">
                 <template #default="scope">
                     {{ moneyDisplay(scope.row.account) }}
                 </template>
             </el-table-column>
             <el-table-column>
+                <template #header>
+                    <el-button size="small" text style="float: right;" @click="() => { newItemDialogDisplay = true }">
+                        <el-icon>
+                            <DocumentAdd />
+                        </el-icon>
+                    </el-button>
+                </template>
                 <template #default>
                     <div style="float: right;">
                         <el-button plain text size="small">
@@ -124,6 +138,9 @@ onMounted(() => {
             </el-table-column>
         </el-table>
     </div>
+    <el-dialog v-model="newItemDialogDisplay" title="添加项目" style="width: 95%;">
+        <AddRecord />
+    </el-dialog>
 </template>
 
 <style scoped>

@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddRecord: typeof import('./src/components/AddRecord.vue')['default']
     AddSubclass: typeof import('./src/components/AddSubclass.vue')['default']
     ElButtom: typeof import('element-plus/es')['ElButtom']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -16,6 +17,7 @@ declare module 'vue' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElOption: typeof import('element-plus/es')['ElOption']
