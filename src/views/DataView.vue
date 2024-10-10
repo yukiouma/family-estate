@@ -78,8 +78,7 @@ function moneyDisplay(n: number): string {
         decimal.unshift(n);
         times += 1;
     });
-    // return `￥${decimal.join("")}.${float}`;
-    return "xxxxx";
+    return `￥${decimal.join("")}.${float}`;
 }
 
 onMounted(() => {
@@ -95,7 +94,7 @@ onMounted(() => {
                 v-for="category in categories" :key="category.id" @click="() => { activeCategory(category.id) }">
                 <template #default>
                     <!-- <div>{{ category.name }}</div> -->
-                    <div>xxxxx</div>
+                    <div>{{ category.name }}</div>
                     <div style="margin-top: 10px;">{{ moneyDisplay(category.account) }}</div>
                 </template>
             </el-tag>
@@ -105,7 +104,7 @@ onMounted(() => {
         <el-table :data="accountDisplay">
             <el-table-column label="分类" width="70px">
                 <template #default="scope">
-                    xxxxx
+                    {{ scope.row.name }}
                 </template>
             </el-table-column>
             <el-table-column label="数额">
@@ -138,8 +137,8 @@ onMounted(() => {
             </el-table-column>
         </el-table>
     </div>
-    <el-dialog v-model="newItemDialogDisplay" title="添加项目" style="width: 95%;">
-        <AddRecord />
+    <el-dialog destroy-on-close v-model="newItemDialogDisplay" title="添加项目" style="width: 95%;">
+        <AddRecord :activeCategory="activeCategoryID" />
     </el-dialog>
 </template>
 

@@ -1,16 +1,27 @@
 <script lang="ts" setup>
-import { onMounted, ref, type Ref } from 'vue';
-import { listCategories } from '../apis/category';
+import { onMounted, ref, watch, type Ref } from 'vue';
+import { listCategories, listSubCategories } from '../apis/category';
+import { debounce } from 'lodash';
 
 const { activeCategory } = defineProps<{ activeCategory: number }>();
 const steps = ref("100");
-const activeCategoryId = ref(activeCategory);
+const activeCategoryId = ref(0);
+const activeSubCategoryId: Ref<number | null>  = ref(null)
 const value = ref(null);
 const categories: Ref<{ id: number, name: string }[]> = ref([]);
+const subCategories: Ref<{ id: number, name: string }[]> = ref([]);
 
 onMounted(async () => {
     categories.value = await listCategories();
+    subCategories.value = await listSubCategories(activeCategory);
+    activeCategoryId.value = activeCategory;
 });
+
+watch(activeCategoryId, debounce(async () => {
+    subCategories.value = await listSubCategories(activeCategoryId.value);
+    activeSubCategoryId.value = null;
+    value.value = null;
+}, 100));
 
 </script>
 
@@ -23,7 +34,9 @@ onMounted(async () => {
             </el-select>
         </el-form-item>
         <el-form-item label="项目">
-            <el-select>
+            <el-select v-model="activeSubCategoryId">
+                <el-option v-for="subCategory in subCategories" :key="subCategory.id" :label="subCategory.name"
+                    :value="subCategory.id" />
             </el-select>
         </el-form-item>
         <el-form-item label="数额">
