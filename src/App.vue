@@ -3,7 +3,7 @@ import { RouterView } from 'vue-router'
 // import HelloWorld from './components/HelloWorld.vue'
 import { ref } from "vue";
 
-const modules: { [key: string]: string } = { "/data": "数据编辑", "/graph": "数据可视化", "/class": "分类管理" };
+const modules: { [key: string]: string } = { "/data": "数据编辑", "/graph": "数据可视化", "/class": "分类管理", "/tag": "标签管理" };
 const currentModule = ref(modules["/data"]);
 function moduleChange(key: string) {
   currentModule.value = modules[key];

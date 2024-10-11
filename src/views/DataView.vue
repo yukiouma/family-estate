@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/AddRecord.vue';
+import { listTags } from '../apis/tag';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
+const activeTag = ref(0);
 const categories: { id: number, name: string, account: number, minues: boolean }[] = [
     { id: 1, name: "流动资金", account: 100000, minues: false },
     { id: 2, name: "固定资产", account: 1000000.1, minues: false },
@@ -12,30 +14,37 @@ const categories: { id: number, name: string, account: number, minues: boolean }
     { id: 5, name: "负债", account: 100000, minues: true },
 ];
 
-const accounts: { categoryId: number, subCategories: { id: number, name: string, account: number, minues: boolean }[] }[] = [
+const tags: Ref<{ id: number, name: string }[]> = ref([]);
+
+const accounts: { categoryId: number, subCategories: { id: number, name: string, account: number, minues: boolean, tag: { id: number, name: string } }[] }[] = [
     {
         categoryId: 1, subCategories: [
-            { id: 1, name: "存款", account: 100000, minues: false },
+            { id: 1, name: "活期存款", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
+            { id: 1, name: "存款", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
         ]
     },
     {
         categoryId: 2, subCategories: [
-            { id: 1, name: "汽车", account: 100000, minues: false },
+            { id: 1, name: "汽车", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
+            { id: 1, name: "汽车", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
         ]
     },
     {
         categoryId: 3, subCategories: [
-            { id: 1, name: "基金", account: 100000, minues: false },
+            { id: 1, name: "基金", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
+            { id: 1, name: "基金", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
         ]
     },
     {
         categoryId: 4, subCategories: [
-            { id: 1, name: "公积金", account: 100000, minues: false },
+            { id: 1, name: "公积金", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
+            { id: 1, name: "公积金", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
         ]
     },
     {
         categoryId: 5, subCategories: [
-            { id: 1, name: "房贷", account: 100000, minues: false },
+            { id: 1, name: "房贷", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
+            { id: 1, name: "房贷", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
         ]
     },
 ];
@@ -81,8 +90,14 @@ function moneyDisplay(n: number): string {
     return `￥${decimal.join("")}.${float}`;
 }
 
-onMounted(() => {
+function activeTagStyle(id: number): string {
+    return id === activeTag.value ? "success" : "primary";
+}
+
+onMounted(async () => {
+    tags.value = await listTags();
     activeCategoryID.value = categories[0].id;
+    activeTag.value = tags.value[0].id
 });
 
 </script>
@@ -100,13 +115,28 @@ onMounted(() => {
             </el-tag>
         </div>
     </el-scrollbar>
+
+    <div style="margin-top: 10px;">
+        <el-scrollbar>
+            <el-tag v-for="tag in tags" :key="tag.id" plain :type="activeTagStyle(tag.id)"
+                style="width: 70px; margin-right: 5px;" @click="() => { activeTag = tag.id }">
+                {{ tag.name }}
+            </el-tag>
+        </el-scrollbar>
+    </div>
+
     <div style="margin-top: 10px;">
         <el-table :data="accountDisplay">
-            <el-table-column label="分类" width="70px">
+            <el-table-column label="分类" width="80px">
                 <template #default="scope">
                     {{ scope.row.name }}
                 </template>
             </el-table-column>
+            <!-- <el-table-column label="标签" width="75px">
+                <template #default="scope">
+                    <el-tag style="width: 50px;">{{ scope.row.tag.name }}</el-tag>
+                </template>
+            </el-table-column> -->
             <el-table-column label="数额">
                 <template #default="scope">
                     {{ moneyDisplay(scope.row.account) }}

@@ -1,20 +1,28 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, type Ref } from 'vue';
 import { listCategories, listSubCategories } from '../apis/category';
+import { listTags } from '../apis/tag';
 import { debounce } from 'lodash';
 
 const { activeCategory } = defineProps<{ activeCategory: number }>();
 const steps = ref("100");
 const activeCategoryId = ref(0);
-const activeSubCategoryId: Ref<number | null>  = ref(null)
+const activeSubCategoryId: Ref<number | null> = ref(null)
 const value = ref(null);
 const categories: Ref<{ id: number, name: string }[]> = ref([]);
 const subCategories: Ref<{ id: number, name: string }[]> = ref([]);
+const activeTag: Ref<number | null> = ref(null);
+let tags: {
+    id: number;
+    name: string;
+}[] = [];
+
 
 onMounted(async () => {
     categories.value = await listCategories();
     subCategories.value = await listSubCategories(activeCategory);
     activeCategoryId.value = activeCategory;
+    tags = await listTags();
 });
 
 watch(activeCategoryId, debounce(async () => {
@@ -50,6 +58,11 @@ watch(activeCategoryId, debounce(async () => {
                 <el-option label="±100" value="100" />
                 <el-option label="±1000" value="1000" />
                 <el-option label="±10000" value="10000" />
+            </el-select>
+        </el-form-item>
+        <el-form-item label="标签">
+            <el-select v-model="activeTag">
+                <el-option v-for="tag in tags" :key="tag.id" :label="tag.name" :value="tag.id" />
             </el-select>
         </el-form-item>
         <el-form-item>

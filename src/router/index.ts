@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ClassView from '../views/ClassView.vue'
 import DataView from '../views/DataView.vue'
 import GraphView from '../views/GraphView.vue'
+import TagView from '../views/TagView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,6 +26,11 @@ const router = createRouter({
       path: '/class',
       name: 'class',
       component: ClassView
+    },
+    {
+      path: '/tag',
+      name: 'tag',
+      component: TagView
     }
   ]
 })
