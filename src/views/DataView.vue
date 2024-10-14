@@ -2,10 +2,12 @@
 import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/AddRecord.vue';
 import { listTags } from '../apis/tag';
+import ModifyNumber from '@/components/ModifyNumber.vue';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
 const activeTag = ref(0);
+const modifyNumberDialogDisplay = ref(false);
 const categories: { id: number, name: string, account: number, minues: boolean }[] = [
     { id: 1, name: "流动资金", account: 100000, minues: false },
     { id: 2, name: "固定资产", account: 1000000.1, minues: false },
@@ -132,11 +134,6 @@ onMounted(async () => {
                     {{ scope.row.name }}
                 </template>
             </el-table-column>
-            <!-- <el-table-column label="标签" width="75px">
-                <template #default="scope">
-                    <el-tag style="width: 50px;">{{ scope.row.tag.name }}</el-tag>
-                </template>
-            </el-table-column> -->
             <el-table-column label="数额">
                 <template #default="scope">
                     {{ moneyDisplay(scope.row.account) }}
@@ -152,7 +149,7 @@ onMounted(async () => {
                 </template>
                 <template #default>
                     <div style="float: right;">
-                        <el-button plain text size="small">
+                        <el-button @click="() => { modifyNumberDialogDisplay = true }" plain text size="small">
                             <el-icon>
                                 <Edit />
                             </el-icon>
@@ -167,12 +164,19 @@ onMounted(async () => {
             </el-table-column>
         </el-table>
     </div>
-    <el-dialog destroy-on-close v-model="newItemDialogDisplay" title="添加项目" style="width: 95%;">
+    <el-dialog style="width: 95%;" destroy-on-close v-model="newItemDialogDisplay" title="添加项目">
         <AddRecord :activeCategory="activeCategoryID" />
+    </el-dialog>
+    <el-dialog style="width: 95%;" v-model="modifyNumberDialogDisplay" destory-on-close title="修改数额">
+        <ModifyNumber :account="100" />
     </el-dialog>
 </template>
 
 <style scoped>
+.dialog {
+    width: 95%;
+}
+
 .category {
     margin-right: 10px;
     width: 115px;

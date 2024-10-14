@@ -5,6 +5,8 @@ import { onMounted, ref, type Ref } from 'vue';
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
 const newTag = ref("");
 const addNewTagDisplay = ref(false);
+const updateLabelDialogDisplay = ref(false);
+
 
 onMounted(async () => {
     tags.value = await listTags();
@@ -30,7 +32,7 @@ onMounted(async () => {
                 </template>
                 <template #default>
                     <div style="float: right;">
-                        <el-button plain text size="small">
+                        <el-button plain text size="small" @click="() => { updateLabelDialogDisplay = true }">
                             <el-icon>
                                 <Edit />
                             </el-icon>
@@ -62,6 +64,9 @@ onMounted(async () => {
                     </el-button>
                 </el-form-item>
             </el-form>
+        </el-dialog>
+        <el-dialog v-model="updateLabelDialogDisplay" destroy-on-close style="width: 95%;" title="更新标签">
+            <ModifyLabel :label="`test`" />
         </el-dialog>
     </div>
 </template>

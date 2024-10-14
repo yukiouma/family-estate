@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { onMounted, ref, type Ref } from 'vue';
 import AddSubclass from '../components/AddSubclass.vue';
+import ModifyLabel from '@/components/ModifyLabel.vue';
 
 
 const currentClasses: Ref<{ id: number, name: string, subClass: { id: number, name: string }[] } | null> = ref(null);
 const activeClassId = ref(0);
 const newSubclassDialogDisplay = ref(false);
+const updateCategoryDialogDisplay = ref(false);
 
 const classes: Ref<{ id: number, name: string, subClass: { id: number, name: string }[] }[]> = ref([
     { id: 1, name: "流动资金", subClass: [{ id: 10, name: "活期" }, { id: 13, name: "余额宝" }] },
@@ -57,9 +59,9 @@ onMounted(() => {
                         </el-icon>
                     </el-button>
                 </template>
-                <template #default="scope">
+                <template #default="">
                     <div style="float: right;">
-                        <el-button plain text size="small">
+                        <el-button plain text size="small" @click="() => { updateCategoryDialogDisplay = true }">
                             <el-icon>
                                 <Edit />
                             </el-icon>
@@ -77,6 +79,10 @@ onMounted(() => {
 
     <el-dialog destroy-on-close style="margin-top: 50%;" width="90%" v-model="newSubclassDialogDisplay" title="新增二级分类">
         <AddSubclass :classes="classes" :current-main-class-id="activeClassId" />
+    </el-dialog>
+
+    <el-dialog v-model="updateCategoryDialogDisplay" destroy-on-close style="width: 95%;" title="更新分类名称">
+        <ModifyLabel :label="`test`" />
     </el-dialog>
 </template>
 
