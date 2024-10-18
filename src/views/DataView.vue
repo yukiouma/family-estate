@@ -96,6 +96,14 @@ function activeTagStyle(id: number): string {
     return id === activeTag.value ? "success" : "primary";
 }
 
+function clickTag(id: number) {
+    if (id === activeTag.value) {
+        activeTag.value = 0;
+        return;
+    }
+    activeTag.value = id;
+}
+
 onMounted(async () => {
     tags.value = await listTags();
     activeCategoryID.value = categories[0].id;
@@ -121,7 +129,7 @@ onMounted(async () => {
     <div style="margin-top: 10px;">
         <el-scrollbar>
             <el-tag v-for="tag in tags" :key="tag.id" plain :type="activeTagStyle(tag.id)"
-                style="width: 70px; margin-right: 5px;" @click="() => { activeTag = tag.id }">
+                style="width: 70px; margin-right: 5px;" @click="() => { clickTag(tag.id) }">
                 {{ tag.name }}
             </el-tag>
         </el-scrollbar>
