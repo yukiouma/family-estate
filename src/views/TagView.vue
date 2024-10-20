@@ -1,23 +1,20 @@
 <script lang="ts" setup>
 import { listTags, removeTag } from '../apis/tag';
 import { onMounted, ref, type Ref } from 'vue';
-import AddTag from '../components/tag/AddTag.vue';
 import { ElMessage } from 'element-plus';
+import AddTag from '../components/tag/AddTag.vue';
 import ModifyTag from '../components/tag/ModifyTag.vue';
+import DeleteConfirm from '../components/DeleteConfirm.vue';
 
+const deleteConfirmDisplay = ref(false);
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
 const addNewTagDisplay = ref(false);
 const updateTagDialogDisplay = ref(false);
-const updateTag: { id: number, name: string } = {
+const activeTag: { id: number, name: string } = {
     id: 0,
     name: ''
 };
 
-async function deleteTag(id: number) {
-    await removeTag(id);
-    ElMessage.success("删除成功");
-    tags.value = await listTags();
-}
 
 async function addNewTagDialogClose() {
     addNewTagDisplay.value = false;
@@ -29,8 +26,25 @@ async function updateTagDialogClose() {
     tags.value = await listTags();
 }
 
-onMounted(async () => {
+async function deleteTag(confirm: boolean) {
+    if (confirm) {
+        try {
+            await removeTag(activeTag.id);
+            await updateTagList();
+            ElMessage.success("删除成功");
+        } catch (error) {
+            ElMessage.error(`删除失败: ${error}`);
+        }
+    }
+    deleteConfirmDisplay.value = false;
+}
+
+async function updateTagList() {
     tags.value = await listTags();
+}
+
+onMounted(async () => {
+    await updateTagList();
 });
 
 </script>
@@ -54,12 +68,13 @@ onMounted(async () => {
                 <template #default="scope">
                     <div style="float: right;">
                         <el-button plain text size="small"
-                            @click="() => { updateTag = scope.row; updateTagDialogDisplay = true }">
+                            @click="() => { activeTag = scope.row; updateTagDialogDisplay = true }">
                             <el-icon>
                                 <Edit />
                             </el-icon>
                         </el-button>
-                        <el-button @click="() => { deleteTag(scope.row.id) }" type="danger" plain text size="small">
+                        <el-button @click="() => { activeTag = scope.row; deleteConfirmDisplay = true }" type="danger"
+                            plain text size="small">
                             <el-icon>
                                 <Delete />
                             </el-icon>
@@ -71,8 +86,11 @@ onMounted(async () => {
         <el-dialog destroy-on-close v-model="addNewTagDisplay" title="新增标签" width="95%">
             <AddTag @close="addNewTagDialogClose" />
         </el-dialog>
-        <el-dialog v-model="updateTagDialogDisplay" destroy-on-close style="width: 95%;" title="更新标签">
-            <ModifyTag :tag="{ id: updateTag.id, name: updateTag.name }" @close="updateTagDialogClose" />
+        <el-dialog width="90%" v-model="updateTagDialogDisplay" destroy-on-close title="更新标签">
+            <ModifyTag :tag="{ id: activeTag.id, name: activeTag.name }" @close="updateTagDialogClose" />
+        </el-dialog>
+        <el-dialog width="90%" v-model="deleteConfirmDisplay" destroy-on-close>
+            <DeleteConfirm :message="`是否删除标签: ${activeTag.name}`" @close="deleteTag" />
         </el-dialog>
     </div>
 </template>
