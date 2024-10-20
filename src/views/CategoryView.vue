@@ -5,6 +5,7 @@ import AddSubCategory from '../components/category/AddSubCategory.vue';
 import ModifySubCategory from '../components/category/ModifySubCategory.vue';
 import ModifyCategory from '../components/category/ModifyCategory.vue';
 import DeleteConfirm from '../components/DeleteConfirm.vue';
+
 import { listCategoryWithSub, removeSubCategory } from '@/apis/category';
 import { ElMessage } from 'element-plus';
 
@@ -82,7 +83,7 @@ onMounted(async () => {
                             {{ item.name }}
                         </span>
                         <el-button style="padding-top: 0%;" size="small" text
-                            @click="() => { editCategoryDialogDisplay = true }">
+                            @click="() => { switchCategory(item.id); editCategoryDialogDisplay = true }">
                             <el-icon>
                                 <Edit />
                             </el-icon>

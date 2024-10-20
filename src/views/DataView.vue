@@ -3,69 +3,24 @@ import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/AddRecord.vue';
 import { listTags } from '../apis/tag';
 import ModifyData from '@/components/ModifyData.vue';
+import { listSubCategoryData, listCategoryData } from '../apis/data';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
 const activeTag = ref(0);
 const modifyNumberDialogDisplay = ref(false);
-const categories: { id: number, name: string, account: number, minues: boolean }[] = [
-    { id: 1, name: "流动资金", account: 100000, minues: false },
-    { id: 2, name: "固定资产", account: 1000000.1, minues: false },
-    { id: 3, name: "投资理财", account: 100000.01, minues: false },
-    { id: 4, name: "应收款", account: 0, minues: false },
-    { id: 5, name: "负债", account: 100000, minues: true },
-];
+
+const categoryAccount: Ref<{ categoryId: number; categoryName: string; value: number }[]> = ref([]);
+const subCategoryAccount: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
+const subCategoryAccountDisplay = computed(() => {
+    return subCategoryAccount.value.filter(acc => acc.categoryId === activeCategoryID.value);
+});
 
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
-
-const accounts: { categoryId: number, subCategories: { id: number, name: string, account: number, minues: boolean, tag: { id: number, name: string } }[] }[] = [
-    {
-        categoryId: 1, subCategories: [
-            { id: 1, name: "活期存款", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
-            { id: 1, name: "存款", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
-        ]
-    },
-    {
-        categoryId: 2, subCategories: [
-            { id: 1, name: "汽车", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
-            { id: 1, name: "汽车", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
-        ]
-    },
-    {
-        categoryId: 3, subCategories: [
-            { id: 1, name: "基金", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
-            { id: 1, name: "基金", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
-        ]
-    },
-    {
-        categoryId: 4, subCategories: [
-            { id: 1, name: "公积金", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
-            { id: 1, name: "公积金", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
-        ]
-    },
-    {
-        categoryId: 5, subCategories: [
-            { id: 1, name: "房贷", account: 100000, minues: false, tag: { id: 1, name: 'malney' } },
-            { id: 1, name: "房贷", account: 100000, minues: false, tag: { id: 2, name: 'yuki' } },
-        ]
-    },
-];
-
-const accountDisplay = computed(() => {
-    let result: any[] = [];
-    for (const account of accounts) {
-        if (account.categoryId === activeCategoryID.value) {
-            result = account.subCategories;
-        }
-    }
-    return result;
-});
 
 function activeCategory(id: number) {
     activeCategoryID.value = id;
 }
-
-
 
 function moneyDisplay(n: number): string {
     const source = n.toString().split(".");
@@ -96,18 +51,24 @@ function activeTagStyle(id: number): string {
     return id === activeTag.value ? "success" : "primary";
 }
 
-function clickTag(id: number) {
+async function clickTag(id: number) {
     if (id === activeTag.value) {
         activeTag.value = 0;
-        return;
+    } else {
+        activeTag.value = id;
     }
-    activeTag.value = id;
+    await updateAccount();
+}
+
+async function updateAccount() {
+    categoryAccount.value = await listCategoryData(activeTag.value);
+    subCategoryAccount.value = await listSubCategoryData(activeTag.value);
 }
 
 onMounted(async () => {
+    await updateAccount();
     tags.value = await listTags();
-    activeCategoryID.value = categories[0].id;
-    activeTag.value = tags.value[0].id
+    activeCategoryID.value = categoryAccount.value[0].categoryId;
 });
 
 </script>
@@ -115,12 +76,12 @@ onMounted(async () => {
 <template>
     <el-scrollbar style="margin-top: 10px;">
         <div style="display: flex;">
-            <el-tag :type="category.id === activeCategoryID ? 'success  ' : 'primary'" class="category"
-                v-for="category in categories" :key="category.id" @click="() => { activeCategory(category.id) }">
+            <el-tag :type="category.categoryId === activeCategoryID ? 'success  ' : 'primary'" class="category"
+                v-for="category in categoryAccount" :key="category.categoryId"
+                @click="() => { activeCategory(category.categoryId) }">
                 <template #default>
-                    <!-- <div>{{ category.name }}</div> -->
-                    <div>{{ category.name }}</div>
-                    <div style="margin-top: 10px;">{{ moneyDisplay(category.account) }}</div>
+                    <div>{{ category.categoryName }}</div>
+                    <div style="margin-top: 10px;">{{ moneyDisplay(category.value) }}</div>
                 </template>
             </el-tag>
         </div>
@@ -136,20 +97,23 @@ onMounted(async () => {
     </div>
 
     <div style="margin-top: 10px;">
-        <el-table :data="accountDisplay">
-            <el-table-column label="分类" width="80px">
+        <el-table :data="subCategoryAccountDisplay">
+            <el-table-column label="分类" width="100px">
                 <template #default="scope">
-                    {{ scope.row.name }}
+                    <el-tag style="width: 70px; margin-left: 0;">
+                        {{ scope.row.subCategory }}
+                    </el-tag>
                 </template>
             </el-table-column>
             <el-table-column label="数额">
                 <template #default="scope">
-                    {{ moneyDisplay(scope.row.account) }}
+                    {{ moneyDisplay(scope.row.value) }}
                 </template>
             </el-table-column>
             <el-table-column>
                 <template #header>
-                    <el-button size="small" text style="float: right;" @click="() => { newItemDialogDisplay = true }">
+                    <el-button :disabled="activeTag === 0" size="small" text style="float: right;"
+                        @click="() => { newItemDialogDisplay = true }">
                         <el-icon>
                             <DocumentAdd />
                         </el-icon>
@@ -157,12 +121,13 @@ onMounted(async () => {
                 </template>
                 <template #default>
                     <div style="float: right;">
-                        <el-button @click="() => { modifyNumberDialogDisplay = true }" plain text size="small">
+                        <el-button :disabled="activeTag === 0" @click="() => { modifyNumberDialogDisplay = true }" plain
+                            text size="small">
                             <el-icon>
                                 <Edit />
                             </el-icon>
                         </el-button>
-                        <el-button type="danger" plain text size="small">
+                        <el-button :disabled="activeTag === 0" type="danger" plain text size="small">
                             <el-icon>
                                 <Delete />
                             </el-icon>
