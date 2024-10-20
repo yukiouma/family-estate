@@ -1,12 +1,33 @@
 <script lang="ts" setup>
-import { listTags } from '@/apis/tag';
+import { listTags, removeTag } from '../apis/tag';
 import { onMounted, ref, type Ref } from 'vue';
+import AddTag from '../components/tag/AddTag.vue';
+import { ElMessage } from 'element-plus';
+import ModifyTag from '../components/tag/ModifyTag.vue';
 
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
-const newTag = ref("");
 const addNewTagDisplay = ref(false);
-const updateLabelDialogDisplay = ref(false);
+const updateTagDialogDisplay = ref(false);
+const updateTag: { id: number, name: string } = {
+    id: 0,
+    name: ''
+};
 
+async function deleteTag(id: number) {
+    await removeTag(id);
+    ElMessage.success("删除成功");
+    tags.value = await listTags();
+}
+
+async function addNewTagDialogClose() {
+    addNewTagDisplay.value = false;
+    tags.value = await listTags();
+}
+
+async function updateTagDialogClose() {
+    updateTagDialogDisplay.value = false;
+    tags.value = await listTags();
+}
 
 onMounted(async () => {
     tags.value = await listTags();
@@ -30,14 +51,15 @@ onMounted(async () => {
                         </el-icon>
                     </el-button>
                 </template>
-                <template #default>
+                <template #default="scope">
                     <div style="float: right;">
-                        <el-button plain text size="small" @click="() => { updateLabelDialogDisplay = true }">
+                        <el-button plain text size="small"
+                            @click="() => { updateTag = scope.row; updateTagDialogDisplay = true }">
                             <el-icon>
                                 <Edit />
                             </el-icon>
                         </el-button>
-                        <el-button type="danger" plain text size="small">
+                        <el-button @click="() => { deleteTag(scope.row.id) }" type="danger" plain text size="small">
                             <el-icon>
                                 <Delete />
                             </el-icon>
@@ -46,27 +68,11 @@ onMounted(async () => {
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog v-model="addNewTagDisplay" title="新增标签" width="95%">
-            <el-form label-width="auto">
-                <el-form-item label="标签">
-                    <el-input v-model="newTag" clearable />
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" plain>
-                        <el-icon>
-                            <Check />
-                        </el-icon>
-                    </el-button>
-                    <el-button type="danger" plain>
-                        <el-icon>
-                            <Close />
-                        </el-icon>
-                    </el-button>
-                </el-form-item>
-            </el-form>
+        <el-dialog destroy-on-close v-model="addNewTagDisplay" title="新增标签" width="95%">
+            <AddTag @close="addNewTagDialogClose" />
         </el-dialog>
-        <el-dialog v-model="updateLabelDialogDisplay" destroy-on-close style="width: 95%;" title="更新标签">
-            <ModifyLabel :label="`test`" />
+        <el-dialog v-model="updateTagDialogDisplay" destroy-on-close style="width: 95%;" title="更新标签">
+            <ModifyTag :tag="{ id: updateTag.id, name: updateTag.name }" @close="updateTagDialogClose" />
         </el-dialog>
     </div>
 </template>

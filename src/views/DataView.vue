@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/AddRecord.vue';
 import { listTags } from '../apis/tag';
-import ModifyNumber from '@/components/ModifyNumber.vue';
+import ModifyData from '@/components/ModifyData.vue';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
@@ -175,8 +175,8 @@ onMounted(async () => {
     <el-dialog style="width: 95%;" destroy-on-close v-model="newItemDialogDisplay" title="添加项目">
         <AddRecord :activeCategory="activeCategoryID" />
     </el-dialog>
-    <el-dialog style="width: 95%;" v-model="modifyNumberDialogDisplay" destory-on-close title="修改数额">
-        <ModifyNumber :account="100" />
+    <el-dialog style="width: 95%;" v-model="modifyNumberDialogDisplay" destory-on-close title="修改数据">
+        <ModifyData :account="100" />
     </el-dialog>
 </template>
 
