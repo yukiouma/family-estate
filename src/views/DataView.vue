@@ -1,14 +1,18 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, type Ref } from 'vue';
-import AddRecord from '../components/AddRecord.vue';
+import AddRecord from '../components/data/AddRecord.vue';
 import { listTags } from '../apis/tag';
-import ModifyData from '@/components/ModifyData.vue';
+import ModifyData from '../components/data/ModifyData.vue';
 import { listSubCategoryData, listCategoryData } from '../apis/data';
+import DeleteConfirm from '@/components/DeleteConfirm.vue';
+import { removeData } from '../apis/data';
+import { ElMessage } from 'element-plus';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
 const activeTag = ref(0);
 const modifyNumberDialogDisplay = ref(false);
+const deleteConfirmDisplay = ref(false);
 
 const categoryAccount: Ref<{ categoryId: number; categoryName: string; value: number }[]> = ref([]);
 const subCategoryAccount: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
@@ -17,6 +21,17 @@ const subCategoryAccountDisplay = computed(() => {
 });
 
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
+const activeItem: Ref<{
+    id: number,
+    categoryId: number,
+    subCategory: string,
+    value: number
+}> = ref({
+    id: 0,
+    categoryId: 0,
+    subCategory: "",
+    value: 0,
+});
 
 function activeCategory(id: number) {
     activeCategoryID.value = id;
@@ -63,6 +78,16 @@ async function clickTag(id: number) {
 async function updateAccount() {
     categoryAccount.value = await listCategoryData(activeTag.value);
     subCategoryAccount.value = await listSubCategoryData(activeTag.value);
+}
+
+async function removeItem() {
+    try {
+        await removeData(activeItem.value.id);
+        ElMessage.success("删除成功");
+    } catch (error) {
+        ElMessage.error(`删除失败: ${error}`);
+    }
+    await updateAccount();
 }
 
 onMounted(async () => {
@@ -119,15 +144,20 @@ onMounted(async () => {
                         </el-icon>
                     </el-button>
                 </template>
-                <template #default>
+                <template #default="scope">
                     <div style="float: right;">
-                        <el-button :disabled="activeTag === 0" @click="() => { modifyNumberDialogDisplay = true }" plain
-                            text size="small">
+                        <el-button :disabled="activeTag === 0" @click="() => {
+                            activeItem = scope.row;
+                            modifyNumberDialogDisplay = true;
+                        }" plain text size="small">
                             <el-icon>
                                 <Edit />
                             </el-icon>
                         </el-button>
-                        <el-button :disabled="activeTag === 0" type="danger" plain text size="small">
+                        <el-button :disabled="activeTag === 0" type="danger" plain text size="small" @click="() => {
+                            activeItem = scope.row;
+                            deleteConfirmDisplay = true;
+                        }">
                             <el-icon>
                                 <Delete />
                             </el-icon>
@@ -137,11 +167,23 @@ onMounted(async () => {
             </el-table-column>
         </el-table>
     </div>
-    <el-dialog style="width: 95%;" destroy-on-close v-model="newItemDialogDisplay" title="添加项目">
-        <AddRecord :activeCategory="activeCategoryID" />
+    <el-dialog width="90%" destroy-on-close v-model="newItemDialogDisplay" title="添加项目">
+        <AddRecord :activeCategory="activeCategoryID" @close="() => {
+            newItemDialogDisplay = false;
+        }" />
     </el-dialog>
-    <el-dialog style="width: 95%;" v-model="modifyNumberDialogDisplay" destory-on-close title="修改数据">
-        <ModifyData :account="100" />
+    <el-dialog width="90%" v-model="modifyNumberDialogDisplay" destroy-on-close title="修改数据">
+        <ModifyData :id="activeItem.id" :account="activeItem.value" @close="() => {
+            modifyNumberDialogDisplay = false;
+        }" />
+    </el-dialog>
+    <el-dialog width="90%" destroy-on-close v-model="deleteConfirmDisplay">
+        <DeleteConfirm :message="`是否删除项目: ${activeItem.subCategory}`" @close="async (confirm) => {
+            if (confirm) {
+                await removeItem();
+            }
+            deleteConfirmDisplay = false;
+        }" />
     </el-dialog>
 </template>
 

@@ -58,3 +58,20 @@ export async function listCategoryData(
   ]
   return dummyData[tagId]
 }
+
+export async function createData(data: {
+  categoryId: number
+  subCategoryId: number
+  value: number
+  tagId: number
+}) {
+  console.log(`createData(${data})`)
+}
+
+export async function updateData(id: number, value: number) {
+  console.log(`updateData(${id}, ${value})`)
+}
+
+export async function removeData(id: number) {
+  console.log(`removeData(${id})`)
+}

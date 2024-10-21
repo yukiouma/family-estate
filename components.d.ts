@@ -9,7 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddCategory: typeof import('./src/components/category/AddCategory.vue')['default']
     AddClass: typeof import('./src/components/AddClass.vue')['default']
-    AddRecord: typeof import('./src/components/AddRecord.vue')['default']
+    AddRecord: typeof import('./src/components/data/AddRecord.vue')['default']
     AddSubCategory: typeof import('./src/components/category/AddSubCategory.vue')['default']
     AddSubclass: typeof import('./src/components/AddSubclass.vue')['default']
     AddTag: typeof import('./src/components/tag/AddTag.vue')['default']
@@ -43,7 +43,7 @@ declare module 'vue' {
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     ModifyCategory: typeof import('./src/components/category/ModifyCategory.vue')['default']
-    ModifyData: typeof import('./src/components/ModifyData.vue')['default']
+    ModifyData: typeof import('./src/components/data/ModifyData.vue')['default']
     ModifyLabel: typeof import('./src/components/ModifyLabel.vue')['default']
     ModifyNumber: typeof import('./src/components/ModifyNumber.vue')['default']
     ModifySubCategory: typeof import('./src/components/category/ModifySubCategory.vue')['default']

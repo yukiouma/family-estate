@@ -1,14 +1,18 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, type Ref } from 'vue';
-import { listCategories, listSubCategories } from '../apis/category';
-import { listTags } from '../apis/tag';
+import { listCategories, listSubCategories } from '../../apis/category';
+import { listTags } from '../../apis/tag';
 import { debounce } from 'lodash';
+import { ElMessage } from 'element-plus';
+import { createData } from '../../apis/data';
 
+const closeEvent = "close";
+const emit = defineEmits<{ (e: "close"): void }>();
 const { activeCategory } = defineProps<{ activeCategory: number }>();
 const steps = ref("100");
 const activeCategoryId = ref(0);
 const activeSubCategoryId: Ref<number | null> = ref(null)
-const value = ref(null);
+const value: Ref<number | null> = ref(null);
 const categories: Ref<{ id: number, name: string }[]> = ref([]);
 const subCategories: Ref<{ id: number, name: string }[]> = ref([]);
 const activeTag: Ref<number | null> = ref(null);
@@ -30,6 +34,40 @@ watch(activeCategoryId, debounce(async () => {
     activeSubCategoryId.value = null;
     value.value = null;
 }, 100));
+
+function validate(): boolean {
+    if (!activeSubCategoryId.value) {
+        ElMessage.error("项目不能为空");
+        return false;
+    }
+    if (!value.value) {
+        ElMessage.error("数值不能为空");
+        return false;
+    }
+    if (!activeTag.value) {
+        ElMessage.error("标签不能为空");
+        return false;
+    }
+    return true;
+}
+
+async function sumbit() {
+    if (validate()) {
+        try {
+            await createData({
+                categoryId: activeCategoryId.value,
+                subCategoryId: activeSubCategoryId.value as number,
+                value: value.value as number,
+                tagId: activeTag.value as number
+            });
+            ElMessage.success("添加成功")
+        } catch (error) {
+            ElMessage.error(`添加项目失败: ${error}`);
+        }
+    }
+    emit(closeEvent);
+}
+
 
 </script>
 
@@ -66,12 +104,12 @@ watch(activeCategoryId, debounce(async () => {
             </el-select>
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" plain>
+            <el-button type="primary" plain @click="sumbit">
                 <el-icon>
                     <Check />
                 </el-icon>
             </el-button>
-            <el-button type="danger" plain>
+            <el-button type="danger" plain @click="() => { emit(closeEvent) }">
                 <el-icon>
                     <Close />
                 </el-icon>
