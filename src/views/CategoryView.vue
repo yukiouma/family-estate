@@ -6,7 +6,7 @@ import ModifySubCategory from '../components/category/ModifySubCategory.vue';
 import ModifyCategory from '../components/category/ModifyCategory.vue';
 import DeleteConfirm from '../components/DeleteConfirm.vue';
 
-import { listCategoryWithSub, removeSubCategory } from '@/apis/category';
+import { listCategoryWithSub, removeCategory } from '@/apis/category';
 import { ElMessage } from 'element-plus';
 
 
@@ -54,7 +54,7 @@ async function updateCategories() {
 async function deleteSubCategory(confirm: boolean) {
     if (confirm) {
         try {
-            await removeSubCategory(activeCategoryId.value);
+            await removeCategory(activeCategoryId.value);
             await updateCategories();
             ElMessage.success("删除成功");
         } catch (error) {

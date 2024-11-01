@@ -6,6 +6,7 @@ import AddTag from '../components/tag/AddTag.vue';
 import ModifyTag from '../components/tag/ModifyTag.vue';
 import DeleteConfirm from '../components/DeleteConfirm.vue';
 
+// const loading = ref(false);
 const deleteConfirmDisplay = ref(false);
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
 const addNewTagDisplay = ref(false);
@@ -45,6 +46,7 @@ async function updateTagList() {
 
 onMounted(async () => {
     await updateTagList();
+    // loading.value = true;
 });
 
 </script>

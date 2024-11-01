@@ -14,7 +14,7 @@ const activeTag = ref(0);
 const modifyNumberDialogDisplay = ref(false);
 const deleteConfirmDisplay = ref(false);
 
-const categoryAccount: Ref<{ categoryId: number; categoryName: string; value: number }[]> = ref([]);
+const categoryAccount: Ref<{ id: number; name: string; value: number }[]> = ref([]);
 const subCategoryAccount: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
 const subCategoryAccountDisplay = computed(() => {
     return subCategoryAccount.value.filter(acc => acc.categoryId === activeCategoryID.value);
@@ -93,7 +93,7 @@ async function removeItem() {
 onMounted(async () => {
     await updateAccount();
     tags.value = await listTags();
-    activeCategoryID.value = categoryAccount.value[0].categoryId;
+    activeCategoryID.value = categoryAccount.value[0].id;
 });
 
 </script>
@@ -101,11 +101,10 @@ onMounted(async () => {
 <template>
     <el-scrollbar style="margin-top: 10px;">
         <div style="display: flex;">
-            <el-tag :type="category.categoryId === activeCategoryID ? 'success  ' : 'primary'" class="category"
-                v-for="category in categoryAccount" :key="category.categoryId"
-                @click="() => { activeCategory(category.categoryId) }">
+            <el-tag :type="category.id === activeCategoryID ? 'success  ' : 'primary'" class="category"
+                v-for="category in categoryAccount" :key="category.id" @click="() => { activeCategory(category.id) }">
                 <template #default>
-                    <div>{{ category.categoryName }}</div>
+                    <div>{{ category.name }}</div>
                     <div style="margin-top: 10px;">{{ moneyDisplay(category.value) }}</div>
                 </template>
             </el-tag>

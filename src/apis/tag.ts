@@ -1,19 +1,18 @@
+import { client } from './client'
+
 export async function listTags(): Promise<{ id: number; name: string }[]> {
-  const data = [
-    { id: 1, name: 'malney' },
-    { id: 2, name: 'yuki' }
-  ]
-  return data
+  const { data } = await client.get('/tag')
+  return data.data
 }
 
 export async function addTag(tag: string) {
-  console.log(`executing addTag(${tag})`)
+  await client.post('/tag', { name: tag })
 }
 
 export async function removeTag(id: number) {
-  console.log(`executing removeTag(${id})`)
+  await client.delete(`/tag/${id}`)
 }
 
 export async function modifyTag(tag: { id: number; name: string }) {
-  console.log(`executing modifyTag(${tag})`)
+  await client.put(`/tag/${tag.id}`, { name: tag.name })
 }

@@ -16,17 +16,18 @@ const value: Ref<number | null> = ref(null);
 const categories: Ref<{ id: number, name: string }[]> = ref([]);
 const subCategories: Ref<{ id: number, name: string }[]> = ref([]);
 const activeTag: Ref<number | null> = ref(null);
-let tags: {
+let tags: Ref<{
     id: number;
     name: string;
-}[] = [];
+}[]> = ref([]);
 
 
 onMounted(async () => {
     categories.value = await listCategories();
     subCategories.value = await listSubCategories(activeCategory);
     activeCategoryId.value = activeCategory;
-    tags = await listTags();
+    tags.value = await listTags();
+    console.log(`add record: ${tags.value}`);
 });
 
 watch(activeCategoryId, debounce(async () => {
