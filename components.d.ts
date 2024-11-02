@@ -48,6 +48,7 @@ declare module 'vue' {
     ModifyNumber: typeof import('./src/components/ModifyNumber.vue')['default']
     ModifySubCategory: typeof import('./src/components/category/ModifySubCategory.vue')['default']
     ModifyTag: typeof import('./src/components/tag/ModifyTag.vue')['default']
+    RemoveTag: typeof import('./src/components/tag/RemoveTag.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']

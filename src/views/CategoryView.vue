@@ -6,7 +6,7 @@ import ModifySubCategory from '../components/category/ModifySubCategory.vue';
 import ModifyCategory from '../components/category/ModifyCategory.vue';
 import DeleteConfirm from '../components/DeleteConfirm.vue';
 
-import { listCategoryWithSub, removeCategory } from '@/apis/category';
+import { listCategoryWithSub, removeCategory } from '../apis/category';
 import { ElMessage } from 'element-plus';
 
 
@@ -49,6 +49,7 @@ function switchSubCategory(id: number) {
 
 async function updateCategories() {
     categories.value = await listCategoryWithSub();
+    switchCategory(activeCategoryId.value);
 }
 
 async function deleteSubCategory(confirm: boolean) {

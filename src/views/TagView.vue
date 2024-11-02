@@ -4,7 +4,7 @@ import { onMounted, ref, type Ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import AddTag from '../components/tag/AddTag.vue';
 import ModifyTag from '../components/tag/ModifyTag.vue';
-import DeleteConfirm from '../components/DeleteConfirm.vue';
+import RemoveTag from '../components/tag/RemoveTag.vue';
 
 // const loading = ref(false);
 const deleteConfirmDisplay = ref(false);
@@ -92,7 +92,7 @@ onMounted(async () => {
             <ModifyTag :tag="{ id: activeTag.id, name: activeTag.name }" @close="updateTagDialogClose" />
         </el-dialog>
         <el-dialog width="90%" v-model="deleteConfirmDisplay" destroy-on-close>
-            <DeleteConfirm :message="`是否删除标签: ${activeTag.name}`" @close="deleteTag" />
+            <RemoveTag :id="activeTag.id" :name="activeTag.name" @close="deleteTag" />
         </el-dialog>
     </div>
 </template>
