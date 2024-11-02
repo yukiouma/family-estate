@@ -8,14 +8,14 @@ import { createData } from '../../apis/data';
 
 const closeEvent = "close";
 const emit = defineEmits<{ (e: "close"): void }>();
-const { activeCategory } = defineProps<{ activeCategory: number }>();
+const { activeCategory, activeTag: currentTag } = defineProps<{ activeCategory: number, activeTag: number }>();
 const steps = ref("100");
 const activeCategoryId = ref(0);
 const activeSubCategoryId: Ref<number | null> = ref(null)
 const value: Ref<number | null> = ref(null);
 const categories: Ref<{ id: number, name: string }[]> = ref([]);
 const subCategories: Ref<{ id: number, name: string }[]> = ref([]);
-const activeTag: Ref<number | null> = ref(null);
+const activeTag: Ref<number | null> = ref(currentTag);
 let tags: Ref<{
     id: number;
     name: string;

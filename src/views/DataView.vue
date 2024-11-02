@@ -3,10 +3,8 @@ import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/data/AddRecord.vue';
 import { listTags } from '../apis/tag';
 import ModifyData from '../components/data/ModifyData.vue';
+import RemoveData from '../components/data/RemoveData.vue';
 import { listSubCategoryData, listCategoryData } from '../apis/data';
-import DeleteConfirm from '@/components/DeleteConfirm.vue';
-import { removeData } from '../apis/data';
-import { ElMessage } from 'element-plus';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
@@ -78,16 +76,6 @@ async function clickTag(id: number) {
 async function updateAccount() {
     categoryAccount.value = await listCategoryData(activeTag.value);
     subCategoryAccount.value = await listSubCategoryData(activeTag.value);
-}
-
-async function removeItem() {
-    try {
-        await removeData(activeItem.value.id);
-        ElMessage.success("删除成功");
-    } catch (error) {
-        ElMessage.error(`删除失败: ${error}`);
-    }
-    await updateAccount();
 }
 
 onMounted(async () => {
@@ -167,20 +155,20 @@ onMounted(async () => {
         </el-table>
     </div>
     <el-dialog width="90%" destroy-on-close v-model="newItemDialogDisplay" title="添加项目">
-        <AddRecord :activeCategory="activeCategoryID" @close="() => {
+        <AddRecord :activeCategory="activeCategoryID" :activeTag="activeTag" @close="async () => {
+            await updateAccount();
             newItemDialogDisplay = false;
         }" />
     </el-dialog>
     <el-dialog width="90%" v-model="modifyNumberDialogDisplay" destroy-on-close title="修改数据">
-        <ModifyData :id="activeItem.id" :account="activeItem.value" @close="() => {
+        <ModifyData :id="activeItem.id" :account="activeItem.value" @close="async () => {
+            await updateAccount();
             modifyNumberDialogDisplay = false;
         }" />
     </el-dialog>
     <el-dialog width="90%" destroy-on-close v-model="deleteConfirmDisplay">
-        <DeleteConfirm :message="`是否删除项目: ${activeItem.subCategory}`" @close="async (confirm) => {
-            if (confirm) {
-                await removeItem();
-            }
+        <RemoveData :id="activeItem.id" :name="activeItem.subCategory" @close="async () => {
+            await updateAccount();
             deleteConfirmDisplay = false;
         }" />
     </el-dialog>

@@ -4,10 +4,9 @@ import AddCategory from '../components/category/AddCategory.vue';
 import AddSubCategory from '../components/category/AddSubCategory.vue';
 import ModifySubCategory from '../components/category/ModifySubCategory.vue';
 import ModifyCategory from '../components/category/ModifyCategory.vue';
-import DeleteConfirm from '../components/DeleteConfirm.vue';
+import RemoveSubCategory from '../components/category/RemoveSubCategory.vue';
 
-import { listCategoryWithSub, removeCategory } from '../apis/category';
-import { ElMessage } from 'element-plus';
+import { listCategoryWithSub } from '../apis/category';
 
 
 const currentCategoryes: Ref<{ id: number, name: string, subCategory: { id: number, name: string }[] } | null> = ref(null);
@@ -43,8 +42,10 @@ function switchSubCategory(id: number) {
         if (item.id === id) {
             currentCategoryes.value = item;
             activeCategoryId.value = item.id;
+            return;
         }
     }
+    currentCategoryes.value = null;
 }
 
 async function updateCategories() {
@@ -52,16 +53,8 @@ async function updateCategories() {
     switchCategory(activeCategoryId.value);
 }
 
-async function deleteSubCategory(confirm: boolean) {
-    if (confirm) {
-        try {
-            await removeCategory(activeCategoryId.value);
-            await updateCategories();
-            ElMessage.success("删除成功");
-        } catch (error) {
-            ElMessage.error(`删除失败: ${error}`);
-        }
-    }
+async function deleteSubCategory() {
+    await updateCategories();
     deleteConfirmDisplay.value = false;
 }
 
@@ -167,12 +160,13 @@ onMounted(async () => {
     <el-dialog v-model="editCategoryDialogDisplay" destroy-on-close width="90%" title="编辑分类">
         <ModifyCategory :id="activeCategoryId" :name="activeCategoryName" @close="async () => {
             await updateCategories();
+            activeCategoryId = categories.length > 0 ? categories[0].id : 0;
             editCategoryDialogDisplay = false;
         }" />
     </el-dialog>
 
     <el-dialog destroy-on-close width="90%" v-model="deleteConfirmDisplay">
-        <DeleteConfirm @close="deleteSubCategory" :message="`是否删除二级分类: ${activeSubCategoryName}`" />
+        <RemoveSubCategory :id="activeSubCategoryId" :name="activeSubCategoryName" @close="deleteSubCategory" />
     </el-dialog>
 </template>
 

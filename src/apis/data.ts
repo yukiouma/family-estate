@@ -1,3 +1,4 @@
+import { listCategories } from './category'
 import { client } from './client'
 
 export async function listSubCategoryData(
@@ -10,8 +11,21 @@ export async function listSubCategoryData(
 export async function listCategoryData(
   tagId: number
 ): Promise<{ id: number; name: string; value: number }[]> {
-  const { data } = await client.get(`/data/category${tagId ? `?tag_id=${tagId}` : ''}`)
-  return data.data
+  const categories = (await listCategories()).map((category) => {
+    const { id, name } = category
+    return { id, name, value: 0 }
+  })
+  const dataSet = new Map<number, number>(
+    (await client.get(`/data/category${tagId ? `?tag_id=${tagId}` : ''}`)).data.data.map(
+      (categoryData: any) => [categoryData.id, categoryData.value]
+    )
+  )
+  for (let i = 0; i < categories.length; i++) {
+    const id = categories[i].id
+    const value = dataSet.get(id)
+    categories[i].value = value ? value : 0
+  }
+  return categories
 }
 
 export async function createData(data: {
