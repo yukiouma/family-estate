@@ -1,0 +1,5 @@
+:80 {
+    root * /app/dist
+    file_server
+    reverse_proxy /api/* localhost:80
+}
