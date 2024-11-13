@@ -7,8 +7,11 @@ const data = ref([]);
 
 
 function init(id: string) {
-    const myChart = echart.init(document.getElementById(id));
+    const myChart = echart.init(document.getElementById(id), "dark", { height: "400px", width: "950px", });
     const option = {
+        // xAxis: {
+        //     position: 'top',
+        // },
         series: {
             type: 'sankey',
             layout: 'none',
@@ -85,7 +88,11 @@ onMounted(() => {
 
 <style>
 #graph {
-    width: 174vh;
-    height: 50vh;
+    top: 170px;
+    left: -235px;
+    position: absolute;
+    width: 105vh;
+    height: 60vh;
+    rotate: 90deg;
 }
 </style>
