@@ -20,55 +20,106 @@ function init(id: string) {
             },
             data: [
                 {
-                    name: 'a'
+                    name: '净资产'
                 },
                 {
-                    name: 'b'
+                    name: '总资产'
                 },
                 {
-                    name: 'a1'
+                    name: '流动资金'
                 },
                 {
-                    name: 'a2'
+                    name: '固定资产'
                 },
                 {
-                    name: 'b1'
+                    name: '负债'
                 },
                 {
-                    name: 'c'
-                }
+                    name: '招商银行活期'
+                },
+                {
+                    name: '中国银行活期'
+                },
+                {
+                    name: '微信'
+                },
+                {
+                    name: '支付宝'
+                },
+                {
+                    name: '光大银行活期'
+                },
+                {
+                    name: '汽车'
+                },
+                {
+                    name: '房贷'
+                },
+                {
+                    name: '信用卡'
+                },
             ],
             links: [
                 {
-                    source: 'a',
-                    target: 'a1',
-                    value: 5
+                    source: '房贷',
+                    target: '负债',
+                    value: 90000
                 },
                 {
-                    source: 'a',
-                    target: 'a2',
-                    value: 3
+                    source: '信用卡',
+                    target: '负债',
+                    value: 10000
                 },
                 {
-                    source: 'b',
-                    target: 'b1',
-                    value: 8
+                    source: '负债',
+                    target: '总资产',
+                    value: 100000
                 },
                 {
-                    source: 'a',
-                    target: 'b1',
-                    value: 3
+                    source: '净资产',
+                    target: '总资产',
+                    value: 458498.54 + 210000.00
                 },
                 {
-                    source: 'b1',
-                    target: 'a1',
-                    value: 1
+                    source: '总资产',
+                    target: '流动资金',
+                    value: 458498.54
                 },
                 {
-                    source: 'b1',
-                    target: 'c',
-                    value: 2
-                }
+                    source: '总资产',
+                    target: '固定资产',
+                    value: 210000.00
+                },
+                {
+                    source: '流动资金',
+                    target: '招商银行活期',
+                    value: 379883.87
+                },
+                {
+                    source: '流动资金',
+                    target: '中国银行活期',
+                    value: 52395.93
+                },
+                {
+                    source: '流动资金',
+                    target: '微信',
+                    value: 7409.08
+                },
+                {
+                    source: '流动资金',
+                    target: '支付宝',
+                    value: 15804.98
+                },
+                {
+                    source: '流动资金',
+                    target: '光大银行活期',
+                    value: 3004.68
+                },
+                {
+                    source: '固定资产',
+                    target: '汽车',
+                    value: 210000
+                },
             ]
         }
     };
@@ -88,11 +139,12 @@ onMounted(() => {
 
 <style>
 #graph {
-    top: 170px;
+    top: 125px;
     left: -235px;
     position: absolute;
     width: 105vh;
     height: 60vh;
     rotate: 90deg;
+    transform: scale(0.95);
 }
 </style>
