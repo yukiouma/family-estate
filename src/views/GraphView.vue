@@ -1,133 +1,84 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref, type Ref } from 'vue';
 import * as echart from "echarts";
+import { listCategoryData, listSubCategoryData } from '@/apis/data';
 
+const categoryData: Ref<{ id: number; name: string; value: number }[]> = ref([]);
+const subCategoryData: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
+const totalAmount = ref("");
+const tags = computed(() => {
+    const set: Set<string> = new Set();
+    set.add(totalAmount.value);
+    subCategoryData.value.forEach(data => {
+        set.add(data.subCategory);
+    });
+    categoryData.value.forEach(data => {
+        set.add(data.name);
+    });
+    return Array.from(set).map(e => {
+        return { name: e };
+    });
+});
 
-const data = ref([]);
-
+const linkData = computed(() => {
+    const categoryMap = new Map(categoryData.value.map(d => [d.id, d]));
+    const data: { source: string, target: string, value: number }[] = [];
+    categoryData.value.forEach(d => {
+        data.push({
+            source: totalAmount.value,
+            target: d.name,
+            value: d.value,
+        })
+    });
+    subCategoryData.value.forEach(d => {
+        let source = categoryMap.get(d.categoryId);
+        if (source) {
+            data.push({
+                source: source.name,
+                target: d.subCategory,
+                value: d.value,
+            });
+        }
+    });
+    return data;
+});
 
 function init(id: string) {
     const myChart = echart.init(document.getElementById(id), "dark", { height: "400px", width: "950px", });
     const option = {
-        // xAxis: {
-        //     position: 'top',
-        // },
         series: {
             type: 'sankey',
             layout: 'none',
             emphasis: {
                 focus: 'adjacency'
             },
-            data: [
-                {
-                    name: '净资产'
-                },
-                {
-                    name: '总资产'
-                },
-                {
-                    name: '流动资金'
-                },
-                {
-                    name: '固定资产'
-                },
-                {
-                    name: '负债'
-                },
-                {
-                    name: '招商银行活期'
-                },
-                {
-                    name: '中国银行活期'
-                },
-                {
-                    name: '微信'
-                },
-                {
-                    name: '支付宝'
-                },
-                {
-                    name: '光大银行活期'
-                },
-                {
-                    name: '汽车'
-                },
-                {
-                    name: '房贷'
-                },
-                {
-                    name: '信用卡'
-                },
-            ],
-            links: [
-                {
-                    source: '房贷',
-                    target: '负债',
-                    value: 90000
-                },
-                {
-                    source: '信用卡',
-                    target: '负债',
-                    value: 10000
-                },
-                {
-                    source: '负债',
-                    target: '总资产',
-                    value: 100000
-                },
-                {
-                    source: '净资产',
-                    target: '总资产',
-                    value: 458498.54 + 210000.00
-                },
-                {
-                    source: '总资产',
-                    target: '流动资金',
-                    value: 458498.54
-                },
-                {
-                    source: '总资产',
-                    target: '固定资产',
-                    value: 210000.00
-                },
-                {
-                    source: '流动资金',
-                    target: '招商银行活期',
-                    value: 379883.87
-                },
-                {
-                    source: '流动资金',
-                    target: '中国银行活期',
-                    value: 52395.93
-                },
-                {
-                    source: '流动资金',
-                    target: '微信',
-                    value: 7409.08
-                },
-                {
-                    source: '流动资金',
-                    target: '支付宝',
-                    value: 15804.98
-                },
-                {
-                    source: '流动资金',
-                    target: '光大银行活期',
-                    value: 3004.68
-                },
-                {
-                    source: '固定资产',
-                    target: '汽车',
-                    value: 210000
-                },
-            ]
+            data: tags.value,
+            links: linkData.value,
         }
     };
     myChart.setOption(option);
 }
 
+async function fetchData() {
+    const category = await listCategoryData(0);
+    const subCategory = await listSubCategoryData(0);
+    let sum = 0;
+    category.forEach(data => {
+        sum += data.value;
+    });
+    category.forEach(e => {
+        e.name = `${e.name} (${(e.value / sum * 100).toFixed(2)}%)\n￥${e.value.toFixed(2)}`;
+    });
+    subCategory.forEach(e => {
+        e.subCategory = `${e.subCategory} (${(e.value / sum * 100).toFixed(2)}%)\n￥${e.value.toFixed(2)}`;
+    })
+    categoryData.value = category;
+    subCategoryData.value = subCategory;
+    totalAmount.value = `总资产\n￥${sum.toFixed(2)}`;
+}
 
-onMounted(() => {
+onMounted(async () => {
+    await fetchData()
     init("graph")
 })
 
@@ -145,6 +96,6 @@ onMounted(() => {
     width: 105vh;
     height: 60vh;
     rotate: 90deg;
-    transform: scale(0.95);
+    transform: scale(0.88);
 }
 </style>
