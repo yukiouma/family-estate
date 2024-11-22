@@ -3,17 +3,21 @@ import { computed, onMounted, ref, type Ref } from 'vue';
 import * as echart from "echarts";
 import { listCategoryData, listSubCategoryData } from '@/apis/data';
 
+const activeTagId = ref(0);
+const tags: Ref<{ id: number, name: string }[]> = ref([{ id: 1, name: "yuki" }, { id: 2, name: "malney" }]);
 const categoryData: Ref<{ id: number; name: string; value: number }[]> = ref([]);
 const subCategoryData: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
 const totalAmount = ref("");
-const tags = computed(() => {
+const data = computed(() => {
     const set: Set<string> = new Set();
     set.add(totalAmount.value);
     subCategoryData.value.forEach(data => {
         set.add(data.subCategory);
     });
     categoryData.value.forEach(data => {
-        set.add(data.name);
+        if (data.value > 0) {
+            set.add(data.name);
+        }
     });
     return Array.from(set).map(e => {
         return { name: e };
@@ -52,16 +56,26 @@ function init(id: string) {
             emphasis: {
                 focus: 'adjacency'
             },
-            data: tags.value,
+            data: data.value,
             links: linkData.value,
         }
     };
     myChart.setOption(option);
 }
 
+async function switchTag(id: number) {
+    if (id === activeTagId.value) {
+        activeTagId.value = 0;
+    } else {
+        activeTagId.value = id;
+    }
+    await fetchData();
+    init("graph");
+}
+
 async function fetchData() {
-    const category = await listCategoryData(0);
-    const subCategory = await listSubCategoryData(0);
+    const category = await listCategoryData(activeTagId.value);
+    const subCategory = await listSubCategoryData(activeTagId.value);
     let sum = 0;
     category.forEach(data => {
         sum += data.value;
@@ -85,10 +99,27 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div id="graph"></div>
+    <div id="graph" />
+    <div class="tags">
+        <el-tag :type="tag.id === activeTagId ? 'success' : 'primary'" @click="() => { switchTag(tag.id) }" class="tag"
+            v-for="tag in tags" :key="tag.id">{{ tag.name }}</el-tag>
+    </div>
 </template>
 
 <style>
+.tag {
+    margin-right: 5px;
+    width: 80px;
+}
+
+.tags {
+    width: 180px;
+    rotate: 90deg;
+    top: 85px;
+    left: 310px;
+    position: absolute;
+}
+
 #graph {
     top: 125px;
     left: -235px;
