@@ -45,3 +45,21 @@ export async function updateData(id: number, value: number) {
 export async function removeData(id: number) {
   await client.delete(`/data/${id}`)
 }
+
+export async function listHistory(
+  recordId: number
+): Promise<
+  { id: number; date: string; amount: number; change: number; isMax: boolean; isMin: boolean }[]
+> {
+  const { data } = await client.get(`/data/history?record_id=${recordId}`)
+  return data.data
+}
+
+export async function listCategoryHistory(
+  subCategoryId: number
+): Promise<
+  { id: number; date: string; amount: number; change: number; isMax: boolean; isMin: boolean }[]
+> {
+  const { data } = await client.get(`/data/category/history?sub_category_id=${subCategoryId}`)
+  return data.data
+}

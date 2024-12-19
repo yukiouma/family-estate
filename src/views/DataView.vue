@@ -1,23 +1,27 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, type Ref } from 'vue';
 import AddRecord from '../components/data/AddRecord.vue';
-import { listTags } from '../apis/tag';
 import ModifyData from '../components/data/ModifyData.vue';
 import RemoveData from '../components/data/RemoveData.vue';
+import HistoryView from './HistoryView.vue';
 import { listSubCategoryData, listCategoryData } from '../apis/data';
+import { listTags } from '../apis/tag';
+import { moneyDisplay } from '../utils/format';
 
 const newItemDialogDisplay = ref(false);
 const activeCategoryID = ref(0);
 const activeTag = ref(0);
+const activeRecordId = ref(0);
+const activeSubCategory = ref(0);
+const activeSubCategoryName = ref("");
 const modifyNumberDialogDisplay = ref(false);
 const deleteConfirmDisplay = ref(false);
-
 const categoryAccount: Ref<{ id: number; name: string; value: number }[]> = ref([]);
 const subCategoryAccount: Ref<{ id: number; categoryId: number; subCategory: string; value: number }[]> = ref([]);
+const historyDialogDisplay = ref(false);
 const subCategoryAccountDisplay = computed(() => {
     return subCategoryAccount.value.filter(acc => acc.categoryId === activeCategoryID.value);
 });
-
 const tags: Ref<{ id: number, name: string }[]> = ref([]);
 const activeItem: Ref<{
     id: number,
@@ -35,33 +39,15 @@ function activeCategory(id: number) {
     activeCategoryID.value = id;
 }
 
-function moneyDisplay(n: number): string {
-    const source = n.toString().split(".");
-    let float = "";
-    if (source.length === 1) {
-        float = "00";
-    } else {
-        if (source[1].length === 1) {
-            float = `${source[1]}0`
-        } else {
-            float = source[1].slice(0, 2)
-        }
-    }
-    let decimal: string[] = [];
-    let times = 0;
-    Array.from(source[0]).reverse().forEach((n: string) => {
-        if (times === 3) {
-            decimal.unshift(",");
-            times = 0
-        }
-        decimal.unshift(n);
-        times += 1;
-    });
-    return `￥${decimal.join("")}.${float}`;
-}
-
 function activeTagStyle(id: number): string {
     return id === activeTag.value ? "success" : "primary";
+}
+
+function clickSubCategoryTag(activeRecord: number, subCategoryId: number, subCategoryName: string) {
+    activeSubCategoryName.value = subCategoryName;
+    activeSubCategory.value = subCategoryId;
+    activeRecordId.value = activeTag.value === 0 ? 0 : activeRecord;
+    historyDialogDisplay.value = true;
 }
 
 async function clickTag(id: number) {
@@ -77,6 +63,8 @@ async function updateAccount() {
     categoryAccount.value = await listCategoryData(activeTag.value);
     subCategoryAccount.value = await listSubCategoryData(activeTag.value);
 }
+
+
 
 onMounted(async () => {
     await updateAccount();
@@ -112,7 +100,9 @@ onMounted(async () => {
         <el-table :data="subCategoryAccountDisplay">
             <el-table-column label="分类" width="100px">
                 <template #default="scope">
-                    <el-tag style="width: 70px; margin-left: 0;">
+                    <el-tag
+                        @click="() => { clickSubCategoryTag(scope.row.id, scope.row.subCategoryId, scope.row.subCategory) }"
+                        style="width: 70px; margin-left: 0;">
                         {{ scope.row.subCategory }}
                     </el-tag>
                 </template>
@@ -172,6 +162,12 @@ onMounted(async () => {
             deleteConfirmDisplay = false;
         }" />
     </el-dialog>
+    <el-dialog v-model="historyDialogDisplay" destroy-on-close width="80%" top="30px">
+        <template #header>
+            <el-tag class="historyCategoryTag">{{ activeSubCategoryName }}</el-tag>
+        </template>
+        <HistoryView :record-id="activeRecordId" :sub-category-id="activeSubCategory" />
+    </el-dialog>
 </template>
 
 <style scoped>
@@ -185,5 +181,9 @@ onMounted(async () => {
     height: 80px;
     display: flex;
     flex-shrink: 0;
+}
+
+.historyCategoryTag {
+    width: 100px;
 }
 </style>
