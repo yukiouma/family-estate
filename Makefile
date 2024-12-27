@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	docker build -t family-estate/client:v0.1.1 .
+	docker build -t family-estate/client:v0.1.2 .
 
 .PHONY: dev
 dev:

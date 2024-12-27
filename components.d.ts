@@ -7,8 +7,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Add: typeof import('./src/components/statistic/Add.vue')['default']
     AddCategory: typeof import('./src/components/category/AddCategory.vue')['default']
     AddRecord: typeof import('./src/components/data/AddRecord.vue')['default']
+    AddStatistic: typeof import('./src/components/statistic/AddStatistic.vue')['default']
     AddSubCategory: typeof import('./src/components/category/AddSubCategory.vue')['default']
     AddTag: typeof import('./src/components/tag/AddTag.vue')['default']
     DeleteConfirm: typeof import('./src/components/DeleteConfirm.vue')['default']
@@ -40,11 +42,14 @@ declare module 'vue' {
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
+    Modify: typeof import('./src/components/statistic/Modify.vue')['default']
     ModifyCategory: typeof import('./src/components/category/ModifyCategory.vue')['default']
     ModifyData: typeof import('./src/components/data/ModifyData.vue')['default']
     ModifyLabel: typeof import('./src/components/ModifyLabel.vue')['default']
+    ModifyStatistic: typeof import('./src/components/statistic/ModifyStatistic.vue')['default']
     ModifySubCategory: typeof import('./src/components/category/ModifySubCategory.vue')['default']
     ModifyTag: typeof import('./src/components/tag/ModifyTag.vue')['default']
+    Remove: typeof import('./src/components/statistic/Remove.vue')['default']
     RemoveCategory: typeof import('./src/components/category/RemoveCategory.vue')['default']
     RemoveData: typeof import('./src/components/data/RemoveData.vue')['default']
     RemoveSubCategory: typeof import('./src/components/category/RemoveSubCategory.vue')['default']
